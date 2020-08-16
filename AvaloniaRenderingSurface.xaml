@@ -1,0 +1,9 @@
+<openGl:OpenGlControlBase xmlns="https://github.com/avaloniaui"
+                   xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml'
+                   x:Class="engenious.Avalonia.AvaloniaRenderingSurface"
+                   xmlns:ct="clr-namespace:engenious.Avalonia"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   xmlns:openGl="clr-namespace:Avalonia.OpenGL;assembly=Avalonia.OpenGL">
+
+</openGl:OpenGlControlBase>

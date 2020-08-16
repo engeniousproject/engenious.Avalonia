@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="engenious.OpenTK" Version="4.0.0.2-pre" PrivateAssets="compile" />
+        
+        <PackageReference Include="Avalonia" Version="0.10.0-preview2" />
+        
+        <PackageReference Include="LitGit" Version="0.2.0.14-alpha" PrivateAssets="all" />
+        <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
+        <PackageReference Include="engenious" Version="0.4.0.4-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="AvaloniaRenderingSurface.xaml">
+        <SubType>Designer</SubType>
+      </AvaloniaResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="AvaloniaRenderingSurface.xaml.cs">
+        <DependentUpon>ModelEffectViewer.xaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <LitGitTemplateReference Include="engenious.props.template" />
+    </ItemGroup>
+
+    <Target Name="CopyAssembly" AfterTargets="Build">
+        <Copy SourceFiles="bin\$(Configuration)\$(TargetFramework)\engenious.Avalonia.dll" DestinationFolder="..\engenious.ContentTool\bin\$(Configuration)\$(TargetFramework)" />
+    </Target>
+</Project>
