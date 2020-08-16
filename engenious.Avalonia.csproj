@@ -4,8 +4,7 @@
         <OutputType>Library</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         
-        <LitGitVerboseOutput>true</LitGitVerboseOutput>
-
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>
