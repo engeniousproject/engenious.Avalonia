@@ -3,7 +3,7 @@
 
 #CUSTOM FILES
 *.ego
-engenious.Nuget.props
+engenious.Avalonia.props
 Properties/AssemblyInfo.cs
 
 # User-specific files

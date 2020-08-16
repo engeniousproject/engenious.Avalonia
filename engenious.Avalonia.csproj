@@ -3,6 +3,9 @@
     <PropertyGroup>
         <OutputType>Library</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        
+        <LitGitVerboseOutput>true</LitGitVerboseOutput>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,7 +13,7 @@
         
         <PackageReference Include="Avalonia" Version="0.10.0-preview2" />
         
-        <PackageReference Include="LitGit" Version="0.2.0.14-alpha" PrivateAssets="all" />
+        <PackageReference Include="LitGit" Version="0.2.0.18-alpha" PrivateAssets="all" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
         <PackageReference Include="engenious" Version="0.4.0.4-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
     </ItemGroup>
@@ -28,10 +31,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <LitGitTemplateReference Include="engenious.props.template" />
+      <LitGitTemplateReference Include="engenious.Avalonia.props.template" />
+      <LitGitTemplateReference Include="Properties\AssemblyInfo.cs.template" />
     </ItemGroup>
 
-    <Target Name="CopyAssembly" AfterTargets="Build">
-        <Copy SourceFiles="bin\$(Configuration)\$(TargetFramework)\engenious.Avalonia.dll" DestinationFolder="..\engenious.ContentTool\bin\$(Configuration)\$(TargetFramework)" />
-    </Target>
+    <Import Project="engenious.Avalonia.props" Condition="Exists('engenious.Avalonia.props')" />
 </Project>
