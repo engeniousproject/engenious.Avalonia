@@ -15,7 +15,7 @@
         
         <PackageReference Include="LitGit" Version="0.2.0.18-alpha" PrivateAssets="all" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
-        <PackageReference Include="engenious" Version="0.4.0.4-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
+        <PackageReference Include="engenious" Version="0.5.0.4-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
     </ItemGroup>
 
     <ItemGroup>
