@@ -3,9 +3,9 @@ using System;
 using Avalonia.Input;
 using AvaloniaKey = global::Avalonia.Input.Key;
 using AvaloniaModifiers = global::Avalonia.Input.KeyModifiers;
-using Key = OpenToolkit.Windowing.Common.Input.Key;
-using KeyModifiers = OpenToolkit.Windowing.Common.Input.KeyModifiers;
-using MouseButton = OpenToolkit.Windowing.Common.Input.MouseButton;
+using Key = OpenTK.Windowing.Common.Input.Key;
+using KeyModifiers = OpenTK.Windowing.Common.Input.KeyModifiers;
+using MouseButton = OpenTK.Windowing.Common.Input.MouseButton;
 
 namespace engenious.Avalonia
 {

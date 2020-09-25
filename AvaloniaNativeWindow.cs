@@ -3,15 +3,15 @@ using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.Common;
-using OpenToolkit.Windowing.Common.Input;
-using Key = OpenToolkit.Windowing.Common.Input.Key;
-using KeyModifiers = OpenToolkit.Windowing.Common.Input.KeyModifiers;
-using MouseButton = OpenToolkit.Windowing.Common.Input.MouseButton;
-using TextInputEventArgs = OpenToolkit.Windowing.Common.TextInputEventArgs;
-using WindowIcon = OpenToolkit.Windowing.Common.Input.WindowIcon;
-using WindowState = OpenToolkit.Windowing.Common.WindowState;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Common.Input;
+using Key = OpenTK.Windowing.Common.Input.Key;
+using KeyModifiers = OpenTK.Windowing.Common.Input.KeyModifiers;
+using MouseButton = OpenTK.Windowing.Common.Input.MouseButton;
+using TextInputEventArgs = OpenTK.Windowing.Common.TextInputEventArgs;
+using WindowIcon = OpenTK.Windowing.Common.Input.WindowIcon;
+using WindowState = OpenTK.Windowing.Common.WindowState;
 
 namespace engenious.Avalonia
 {
@@ -77,7 +77,7 @@ namespace engenious.Avalonia
 
                 LastMouseState = MouseState;
                 var tmpMouseState = MouseState;
-                tmpMouseState.Position = new OpenToolkit.Mathematics.Vector2((float) cursorPos.Position.X,(float) cursorPos.Position.Y);
+                tmpMouseState.Position = new OpenTK.Mathematics.Vector2((float) cursorPos.Position.X,(float) cursorPos.Position.Y);
                 MouseState = tmpMouseState;
                 
                 MouseMove?.Invoke(new MouseMoveEventArgs(tmpMouseState.Position.X, tmpMouseState.Position.Y, 0,
@@ -223,7 +223,9 @@ namespace engenious.Avalonia
 
         /// <inheritdoc />
         public bool IsMouseButtonReleased(MouseButton button) => !MouseState.IsButtonDown(button) && LastMouseState.IsButtonDown(button);
-
+        
+        public IGraphicsContext Context => throw new NotImplementedException();
+        
         public bool IsExiting { get; }
         public string ClipboardString { get; set; }
         public bool Exists => true;
@@ -259,8 +261,8 @@ namespace engenious.Avalonia
         public KeyboardState KeyboardState { get; private set; }
 
         public KeyboardState LastKeyboardState{ get; private set; }
-        public OpenToolkit.Mathematics.Vector2 MousePosition { get; set; }
-        public OpenToolkit.Mathematics.Vector2 MouseDelta { get; }
+        public OpenTK.Mathematics.Vector2 MousePosition { get; set; }
+        public OpenTK.Mathematics.Vector2 MouseDelta { get; }
 
         public MouseState MouseState{ get; private set; }
 

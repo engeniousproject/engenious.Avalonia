@@ -5,10 +5,10 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.OpenGL;
 using Avalonia.Threading;
-using OpenToolkit;
-using OpenToolkit.Graphics.OpenGL4;
-using OpenToolkit.Windowing.Common;
-using TextInputEventArgs = OpenToolkit.Windowing.Common.TextInputEventArgs;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
+using TextInputEventArgs = OpenTK.Windowing.Common.TextInputEventArgs;
 
 namespace engenious.Avalonia
 {
@@ -59,11 +59,11 @@ namespace engenious.Avalonia
             base.OnOpenGlInit(gl, fb);
             
             var tmp = new AvaloniaBindingContext(gl);
-            OpenToolkit.Graphics.ES11.GL.LoadBindings(tmp);
-            OpenToolkit.Graphics.ES20.GL.LoadBindings(tmp);
-            OpenToolkit.Graphics.ES30.GL.LoadBindings(tmp);
-            OpenToolkit.Graphics.OpenGL.GL.LoadBindings(tmp);
-            OpenToolkit.Graphics.OpenGL4.GL.LoadBindings(tmp);
+            OpenTK.Graphics.ES11.GL.LoadBindings(tmp);
+            OpenTK.Graphics.ES20.GL.LoadBindings(tmp);
+            OpenTK.Graphics.ES30.GL.LoadBindings(tmp);
+            OpenTK.Graphics.OpenGL.GL.LoadBindings(tmp);
+            OpenTK.Graphics.OpenGL4.GL.LoadBindings(tmp);
             
             CreateContext?.Invoke();
             
@@ -111,8 +111,8 @@ namespace engenious.Avalonia
 
         public Rectangle ClientRectangle
         {
-            get => new Rectangle((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height);
-            set => Bounds = new Rect(value.X, value.Y, value.Width, value.Height);
+            get => new Rectangle((int)0, (int)0, (int)Bounds.Width, (int)Bounds.Height);
+            set => Bounds = new Rect(Bounds.X, Bounds.Y, value.Width, value.Height);
         }
 
         public Size ClientSize

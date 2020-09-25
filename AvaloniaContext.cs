@@ -1,6 +1,6 @@
 using System;
 using Avalonia.OpenGL;
-using OpenToolkit.Windowing.Common;
+using OpenTK.Windowing.Common;
 
 namespace engenious.Avalonia
 {
@@ -32,5 +32,6 @@ namespace engenious.Avalonia
         }
 
         public bool IsCurrent { get; private set; }
+        public IntPtr NativeContex => throw new NotSupportedException();
     }
 }
