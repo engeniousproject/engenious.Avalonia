@@ -10,7 +10,7 @@
 
     <ItemGroup>
         
-        <PackageReference Include="Avalonia" Version="0.10.0-preview2" />
+        <PackageReference Include="Avalonia" Version="0.10.0-preview5" />
         
         <PackageReference Include="LitGit" Version="0.2.0.18-alpha" PrivateAssets="all" />
         
