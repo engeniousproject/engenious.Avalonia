@@ -15,9 +15,9 @@ namespace engenious.Avalonia
                 var context = new AvaloniaContext(
                     (IGlContext)fieldInfo.GetValue(control));
 
-                ConstructContext(control.WindowInfo, context);
+                ConstructContext(control, context);
 
-                InitializeControl(control);
+                InitializeControl();
             };
         }
     }
