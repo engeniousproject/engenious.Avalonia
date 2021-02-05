@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.OpenGL;
+using Avalonia.OpenGL.Controls;
 using Avalonia.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -79,6 +80,7 @@ namespace engenious.Avalonia
 
         public void Dispose()
         {
+            WindowInfo?.Dispose();
         }
 
         public Point PointToClient(Point point)
