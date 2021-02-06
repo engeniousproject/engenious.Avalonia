@@ -76,6 +76,8 @@ namespace engenious.Avalonia
         {
             UpdateFrame?.Invoke(new FrameEventArgs(1));
             RenderFrame?.Invoke(new FrameEventArgs(1));
+            
+            Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
         }
 
         public void Dispose()
