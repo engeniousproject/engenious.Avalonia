@@ -7,7 +7,7 @@ namespace engenious.Avalonia
     public class AvaloniaContext : IGraphicsContext
     {
         private readonly IGlContext _context;
-        private IDisposable _lastMadeCurrent;
+        private IDisposable? _lastMadeCurrent;
 
         public AvaloniaContext(IGlContext context)
         {
@@ -28,7 +28,7 @@ namespace engenious.Avalonia
         public void MakeNoneCurrent()
         {
             IsCurrent = false;
-            _lastMadeCurrent.Dispose();
+            _lastMadeCurrent?.Dispose();
         }
 
         public bool IsCurrent { get; private set; }

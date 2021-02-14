@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
@@ -26,21 +28,30 @@ namespace engenious.Avalonia
             public IntPtr GetProcAddress(string procName) => _glInterface.GetProcAddress(procName);
         }
 
+        private AvaloniaControlWrapper CreateWrapper()
+        {
+            var wrapper = new AvaloniaControlWrapper(this);
+            wrapper.Closing += Closing;
+            return wrapper;
+        }
+
         public AvaloniaRenderingSurface()
         {
             if (Parent != null)
             {
-                WindowInfo = new AvaloniaControlWrapper(this);
+                WindowInfo = CreateWrapper();
             }
             AttachedToVisualTree += (sender, args) =>
             {
-                WindowInfo = new AvaloniaControlWrapper(this);
+                WindowInfo?.Dispose();
+                WindowInfo = CreateWrapper();
             };
             DetachedFromVisualTree += (sender, args) =>
             {
+                WindowInfo?.Dispose();
                 WindowInfo = null;
             };
-            
+
             _boundsSubscription = this.GetObservable(BoundsProperty).Subscribe(args =>
             {
                 var oldBounds = this.Bounds;
@@ -69,15 +80,51 @@ namespace engenious.Avalonia
             CreateContext?.Invoke();
             
             Load?.Invoke();
-            
+            _stopwatch.Start();
         }
 
+        private readonly Stopwatch _stopwatch = new Stopwatch();
         protected override void OnOpenGlRender(GlInterface gl, int fb)
         {
-            UpdateFrame?.Invoke(new FrameEventArgs(1));
-            RenderFrame?.Invoke(new FrameEventArgs(1));
+            var elapsed = _stopwatch.ElapsedMilliseconds / 1000.0;
+            if (elapsed <= 0)
+                return;
+            _stopwatch.Restart();
+            
+            UpdateFrame?.Invoke(new FrameEventArgs(elapsed));
+            RenderFrame?.Invoke(new FrameEventArgs(elapsed));
+
             
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+        }
+        
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+        {
+            base.OnPointerWheelChanged(e);
+            MouseWheel?.Invoke(new MouseWheelEventArgs((float)e.Delta.X, (float)e.Delta.Y));
+        }
+
+        protected override void OnTextInput(global::Avalonia.Input.TextInputEventArgs e)
+        {
+            base.OnTextInput(e);
+            if (e.Text == null)
+                return;
+            foreach (var c in e.Text)
+            {
+                KeyPress?.Invoke(new TextInputEventArgs(c));
+            }
+        }
+
+        protected override void OnGotFocus(GotFocusEventArgs e)
+        {
+            base.OnGotFocus(e);
+            FocusedChanged?.Invoke(new FocusedChangedEventArgs(true));
+        }
+
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            base.OnLostFocus(e);
+            FocusedChanged?.Invoke(new FocusedChangedEventArgs(false));
         }
 
         public void Dispose()
@@ -145,17 +192,17 @@ namespace engenious.Avalonia
         }
 
         public IntPtr Handle => throw new NotSupportedException();
-        public INativeWindow WindowInfo { get; private set; }
+        public INativeWindow? WindowInfo { get; private set; }
         
-        public event Action<FrameEventArgs> RenderFrame;
-        public event Action<FrameEventArgs> UpdateFrame;
-        public event Action<CancelEventArgs> Closing;
-        public event Action<FocusedChangedEventArgs> FocusedChanged;
-        public event Action<TextInputEventArgs> KeyPress;
-        public event Action<ResizeEventArgs> Resize;
-        public event Action Load;
-        public event Action<MouseWheelEventArgs> MouseWheel;
+        public event Action<FrameEventArgs>? RenderFrame;
+        public event Action<FrameEventArgs>? UpdateFrame;
+        public event Action<CancelEventArgs>? Closing;
+        public event Action<FocusedChangedEventArgs>? FocusedChanged;
+        public event Action<TextInputEventArgs>? KeyPress;
+        public event Action<ResizeEventArgs>? Resize;
+        public event Action? Load;
+        public event Action<MouseWheelEventArgs>? MouseWheel;
 
-        public event Action CreateContext;
+        public event Action? CreateContext;
     }
 }

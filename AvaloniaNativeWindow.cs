@@ -18,14 +18,13 @@ namespace engenious.Avalonia
     public class AvaloniaControlWrapper : INativeWindow
     {
         private readonly global::Avalonia.Controls.Window _window;
-        private readonly global::Avalonia.Controls.TopLevel _topLevel;
         private readonly Control _control;
-        private readonly IDisposable _boundsSubscription, _windowStateSubscription;
+        private readonly IDisposable? _boundsSubscription, _windowStateSubscription;
 
         private static TopLevel GetTopLevelControl(global::Avalonia.Controls.IControl control)
         {
             var curControl = control.Parent;
-            TopLevel topLevel = null;
+            TopLevel? topLevel = null;
             while ((topLevel = curControl as TopLevel) == null)
             {
                 curControl = curControl.Parent;
@@ -36,12 +35,13 @@ namespace engenious.Avalonia
 
         public AvaloniaControlWrapper(Control control)
         {
-            _topLevel = GetTopLevelControl(control.Parent);
-            if (_topLevel == null)
-                throw new ArgumentException($"Control {nameof(control)} has no toplevel parent");
-            _window = _topLevel as global::Avalonia.Controls.Window;
+            _control = control;
+            var topLevel = GetTopLevelControl(control.Parent);
+            _window = topLevel as global::Avalonia.Controls.Window ?? throw new ArgumentException($"Control {nameof(control)} has no toplevel parent");
+            
 
-
+            control.PointerWheelChanged += (sender, args) =>
+                MouseWheel?.Invoke(new MouseWheelEventArgs((float) args.Delta.X, (float) args.Delta.Y));
             control.KeyDown += (sender, args) =>
             {
                 var mappedKey = AvaloniaKeyMap.Map[(int) args.Key];
@@ -64,8 +64,10 @@ namespace engenious.Avalonia
             };
             control.TextInput += (sender, args) =>
             {
-                var unicode = BitConverter.ToInt32(System.Text.Encoding.UTF8.GetBytes(args.Text));
-                TextInput?.Invoke(new TextInputEventArgs(unicode));
+                if (args.Text == null)
+                    return;
+                foreach(var c in args.Text)
+                   TextInput?.Invoke(new TextInputEventArgs(c));
             };
 
             control.PointerEnter += (sender, args) => MouseEnter?.Invoke();
@@ -124,31 +126,36 @@ namespace engenious.Avalonia
                     Resize?.Invoke(new ResizeEventArgs((int) newBounds.Size.Width, (int) newBounds.Size.Height));
                 }
             });
-            if (_window != null)
+            _window.Closing += (sender, args) =>
             {
-                _window.Closing += (sender, args) =>
+                var c = new CancelEventArgs(false);
+                Closing?.Invoke(c);
+                args.Cancel = c.Cancel;
+            };
+
+            _windowStateSubscription = _window.GetObservable(global::Avalonia.Controls.Window.WindowStateProperty).Subscribe(args =>
+            {
+                switch (args)
                 {
-                    var c = new CancelEventArgs(false);
+                    case global::Avalonia.Controls.WindowState.Minimized:
+                        Minimized?.Invoke(new MinimizedEventArgs(true));
+                        break;
+                    default:
+                        Minimized?.Invoke(new MinimizedEventArgs(false));
+                        break;
+                }
+            });
+
+            if (topLevel is global::Avalonia.Controls.Window window)
+                window.Closing += (sender, args) =>
+                {
+                    var c = new CancelEventArgs(args.Cancel);
                     Closing?.Invoke(c);
                     args.Cancel = c.Cancel;
                 };
 
-                _windowStateSubscription = _window.GetObservable(global::Avalonia.Controls.Window.WindowStateProperty).Subscribe(args =>
-                {
-                    switch (args)
-                    {
-                        case global::Avalonia.Controls.WindowState.Minimized:
-                            Minimized?.Invoke(new MinimizedEventArgs(true));
-                            break;
-                        default:
-                            Minimized?.Invoke(new MinimizedEventArgs(false));
-                            break;
-                    }
-                });
-            }
-
-
-            _topLevel.Closed += (sender, args) => Closed?.Invoke();
+            
+            topLevel.Closed += (sender, args) => Closed?.Invoke();
         }
 
         public void Dispose()
@@ -227,16 +234,21 @@ namespace engenious.Avalonia
         public IGraphicsContext Context => throw new NotImplementedException();
         
         public bool IsExiting { get; }
-        public string ClipboardString { get; set; }
+        public string? ClipboardString { get; set; }
         public bool Exists => true;
-        public WindowIcon Icon { get; set; }
+        public WindowIcon? Icon { get; set; }
         public bool IsEventDriven { get; set; }
         public Monitor CurrentMonitor { get; set; }
         public ContextAPI API { get; }
         public ContextProfile Profile { get; }
         public ContextFlags Flags { get; }
-        public Version APIVersion { get; }
-        public string Title { get; set; }
+        public Version APIVersion => throw new NotImplementedException();
+
+        public string Title
+        {
+            get => _window.Title;
+            set => _window.Title = value;
+        }
         public bool IsFocused { get; set; }
         public bool IsVisible { get; set; }
         public WindowState WindowState { get; set; }
@@ -250,9 +262,14 @@ namespace engenious.Avalonia
         {
             get => false;
             set => throw new NotSupportedException();
+            
         }
 
-        public MouseCursor Cursor { get; set; }
+        public MouseCursor Cursor
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
         public bool CursorVisible { get; set; }
         public bool CursorGrabbed { get; set; }
         public JoystickState[] JoystickStates => Array.Empty<JoystickState>();
@@ -272,39 +289,39 @@ namespace engenious.Avalonia
         public bool IsAnyMouseButtonDown => MouseState.IsAnyButtonDown;
 
 
-        public event Action<WindowPositionEventArgs> Move;
-        public event Action<ResizeEventArgs> Resize;
+        public event Action<WindowPositionEventArgs>? Move;
+        public event Action<ResizeEventArgs>? Resize;
 
-        public event Action Refresh
+        public event Action? Refresh
         {
             add => throw new NotSupportedException();
             remove => throw new NotSupportedException();
         }
 
-        public event Action<CancelEventArgs> Closing;
-        public event Action Closed;
-        public event Action<MinimizedEventArgs> Minimized;
-        public event Action<JoystickEventArgs> JoystickConnected
+        public event Action<CancelEventArgs>? Closing;
+        public event Action? Closed;
+        public event Action<MinimizedEventArgs>? Minimized;
+        public event Action<JoystickEventArgs>? JoystickConnected
         {
             add => throw new NotSupportedException();
             remove => throw new NotSupportedException();
         }
-        public event Action<FocusedChangedEventArgs> FocusedChanged;
-        public event Action<KeyboardKeyEventArgs> KeyDown;
-        public event Action<TextInputEventArgs> TextInput;
-        public event Action<KeyboardKeyEventArgs> KeyUp;
-        public event Action<MonitorEventArgs> MonitorConnected
+        public event Action<FocusedChangedEventArgs>? FocusedChanged;
+        public event Action<KeyboardKeyEventArgs>? KeyDown;
+        public event Action<TextInputEventArgs>? TextInput;
+        public event Action<KeyboardKeyEventArgs>? KeyUp;
+        public event Action<MonitorEventArgs>? MonitorConnected
         {
             add => throw new NotSupportedException();
             remove => throw new NotSupportedException();
         }
-        public event Action MouseLeave;
-        public event Action MouseEnter;
-        public event Action<MouseButtonEventArgs> MouseDown;
-        public event Action<MouseButtonEventArgs> MouseUp;
-        public event Action<MouseMoveEventArgs> MouseMove;
-        public event Action<MouseWheelEventArgs> MouseWheel;
-        public event Action<FileDropEventArgs> FileDrop
+        public event Action? MouseLeave;
+        public event Action? MouseEnter;
+        public event Action<MouseButtonEventArgs>? MouseDown;
+        public event Action<MouseButtonEventArgs>? MouseUp;
+        public event Action<MouseMoveEventArgs>? MouseMove;
+        public event Action<MouseWheelEventArgs>? MouseWheel;
+        public event Action<FileDropEventArgs>? FileDrop
         {
             add => throw new NotImplementedException();
             remove => throw new NotImplementedException();

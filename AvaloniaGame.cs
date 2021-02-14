@@ -7,16 +7,18 @@ namespace engenious.Avalonia
 {
     public class AvaloniaGame : Game<AvaloniaRenderingSurface>
     {
-        public event EventHandler<AvaloniaGame> Loaded;
+        public event EventHandler<AvaloniaGame>? Loaded;
         /// <inheritdoc />
         public AvaloniaGame(AvaloniaRenderingSurface control)
         {
             control.CreateContext += () =>
             {
                 var fieldInfo =
-                    typeof(OpenGlControlBase).GetField("_context", BindingFlags.Instance | BindingFlags.NonPublic);
-                var context = new AvaloniaContext(
-                    (IGlContext)fieldInfo.GetValue(control));
+                    typeof(OpenGlControlBase).GetField("_context", BindingFlags.Instance | BindingFlags.NonPublic) ??
+                    throw new NotSupportedException("No '_context' field found in Avalonia->OpenGlControlBase");
+                if (!(fieldInfo.GetValue(control) is IGlContext val))
+                    throw new NotSupportedException("'_context' field in Avalonia->OpenGlControlBase was null instead of a valid IGlContext");
+                var context = new AvaloniaContext(val);
 
                 ConstructContext(control, context);
 
