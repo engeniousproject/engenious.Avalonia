@@ -192,7 +192,7 @@ namespace engenious.Avalonia
         }
 
         public IntPtr Handle => throw new NotSupportedException();
-        public INativeWindow? WindowInfo { get; private set; }
+        public IWindowWrapper? WindowInfo { get; private set; }
         
         public event Action<FrameEventArgs>? RenderFrame;
         public event Action<FrameEventArgs>? UpdateFrame;

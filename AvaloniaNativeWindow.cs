@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,20 +7,21 @@ using Avalonia.Input;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
-using Key = OpenTK.Windowing.Common.Input.Key;
-using KeyModifiers = OpenTK.Windowing.Common.Input.KeyModifiers;
-using MouseButton = OpenTK.Windowing.Common.Input.MouseButton;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using Keys = engenious.Input.Keys;
+using KeyModifiers = OpenTK.Windowing.GraphicsLibraryFramework.KeyModifiers;
+using MouseButton = engenious.Input.MouseButton;
 using TextInputEventArgs = OpenTK.Windowing.Common.TextInputEventArgs;
 using WindowIcon = OpenTK.Windowing.Common.Input.WindowIcon;
 using WindowState = OpenTK.Windowing.Common.WindowState;
 
 namespace engenious.Avalonia
 {
-    public class AvaloniaControlWrapper : INativeWindow
+    public class AvaloniaControlWrapper : IWindowWrapper
     {
         private readonly global::Avalonia.Controls.Window _window;
         private readonly Control _control;
-        private readonly IDisposable? _boundsSubscription, _windowStateSubscription;
+        private readonly IDisposable? _boundsSubscription;
 
         private static TopLevel GetTopLevelControl(global::Avalonia.Controls.IControl control)
         {
@@ -48,9 +50,6 @@ namespace engenious.Avalonia
 
                 LastKeyboardState = KeyboardState;
                 KeyboardState.SetKeyState(mappedKey, true);
-                
-                KeyDown?.Invoke(new KeyboardKeyEventArgs(mappedKey, 0, AvaloniaKeyMap.MapModifier(args.KeyModifiers),
-                    false));
             };
             control.KeyUp += (sender, args) =>
             {
@@ -59,19 +58,17 @@ namespace engenious.Avalonia
                 LastKeyboardState = KeyboardState;
                 KeyboardState.SetKeyState(mappedKey, false);
                 
-                KeyUp?.Invoke(new KeyboardKeyEventArgs(mappedKey, 0, AvaloniaKeyMap.MapModifier(args.KeyModifiers),
-                    false));
             };
             control.TextInput += (sender, args) =>
             {
                 if (args.Text == null)
                     return;
                 foreach(var c in args.Text)
-                   TextInput?.Invoke(new TextInputEventArgs(c));
+                   KeyPress?.Invoke(new TextInputEventArgs(c));
             };
-
-            control.PointerEnter += (sender, args) => MouseEnter?.Invoke();
-            control.PointerLeave += (sender, args) => MouseLeave?.Invoke();
+            //
+            // control.PointerEnter += (sender, args) => MouseEnter?.Invoke();
+            // control.PointerLeave += (sender, args) => MouseLeave?.Invoke();
 
             control.PointerMoved += (sender, args) =>
             {
@@ -79,11 +76,12 @@ namespace engenious.Avalonia
 
                 LastMouseState = MouseState;
                 var tmpMouseState = MouseState;
-                tmpMouseState.Position = new OpenTK.Mathematics.Vector2((float) cursorPos.Position.X,(float) cursorPos.Position.Y);
+                tmpMouseState.X = (int)cursorPos.Position.X;
+                tmpMouseState.Y = (int) cursorPos.Position.Y;
                 MouseState = tmpMouseState;
-                
-                MouseMove?.Invoke(new MouseMoveEventArgs(tmpMouseState.Position.X, tmpMouseState.Position.Y, 0,
-                    0));
+                //
+                // MouseMove?.Invoke(new MouseMoveEventArgs(tmpMouseState.Position.X, tmpMouseState.Position.Y, 0,
+                //     0));
             };
             control.PointerPressed += (sender, args) =>
             {
@@ -92,8 +90,8 @@ namespace engenious.Avalonia
                 LastMouseState = MouseState;
                 var tmpMouseState = MouseState;
                 tmpMouseState[mouseButton] = true;
-                MouseState = tmpMouseState;
-                MouseDown?.Invoke(new MouseButtonEventArgs(mouseButton, InputAction.Press, 0));
+                // MouseState = tmpMouseState;
+                // MouseDown?.Invoke(new MouseButtonEventArgs(mouseButton, InputAction.Press, 0));
             };
             control.PointerReleased += (sender, args) =>
             {
@@ -102,8 +100,8 @@ namespace engenious.Avalonia
                 LastMouseState = MouseState;
                 var tmpMouseState = MouseState;
                 tmpMouseState[mouseButton] = false;
-                MouseState = tmpMouseState;
-                MouseUp?.Invoke(new MouseButtonEventArgs(mouseButton, InputAction.Release, 0));
+                // MouseState = tmpMouseState;
+                // MouseUp?.Invoke(new MouseButtonEventArgs(mouseButton, InputAction.Release, 0));
             };
             //control.PointerWheelChanged += (sender, args) => MouseWheel?.Invoke(new MouseWheelEventArgs(args.))
 
@@ -116,10 +114,10 @@ namespace engenious.Avalonia
                 var newBounds = args;
 
 
-                if (newBounds.Position != oldBounds.Position)
-                {
-                    Move?.Invoke(new WindowPositionEventArgs((int) newBounds.Position.X, (int) newBounds.Position.Y));
-                }
+                // if (newBounds.Position != oldBounds.Position)
+                // {
+                //     Move?.Invoke(new WindowPositionEventArgs((int) newBounds.Position.X, (int) newBounds.Position.Y));
+                // }
 
                 if (newBounds.Size != oldBounds.Size)
                 {
@@ -133,18 +131,18 @@ namespace engenious.Avalonia
                 args.Cancel = c.Cancel;
             };
 
-            _windowStateSubscription = _window.GetObservable(global::Avalonia.Controls.Window.WindowStateProperty).Subscribe(args =>
-            {
-                switch (args)
-                {
-                    case global::Avalonia.Controls.WindowState.Minimized:
-                        Minimized?.Invoke(new MinimizedEventArgs(true));
-                        break;
-                    default:
-                        Minimized?.Invoke(new MinimizedEventArgs(false));
-                        break;
-                }
-            });
+            // _windowStateSubscription = _window.GetObservable(global::Avalonia.Controls.Window.WindowStateProperty).Subscribe(args =>
+            // {
+            //     switch (args)
+            //     {
+            //         case global::Avalonia.Controls.WindowState.Minimized:
+            //             Minimized?.Invoke(new MinimizedEventArgs(true));
+            //             break;
+            //         default:
+            //             Minimized?.Invoke(new MinimizedEventArgs(false));
+            //             break;
+            //     }
+            // });
 
             if (topLevel is global::Avalonia.Controls.Window window)
                 window.Closing += (sender, args) =>
@@ -154,14 +152,16 @@ namespace engenious.Avalonia
                     args.Cancel = c.Cancel;
                 };
 
-            
-            topLevel.Closed += (sender, args) => Closed?.Invoke();
         }
 
         public void Dispose()
         {
             _boundsSubscription?.Dispose();
-            _windowStateSubscription?.Dispose();
+        }
+
+        public void Run()
+        {
+            
         }
 
         public void Close()
@@ -169,80 +169,19 @@ namespace engenious.Avalonia
             _window.Close();
         }
 
-        public void ProcessEvents()
-        {
-            ProcessEvents(-1);
-        }
-
-        public bool ProcessEvents(double timeout)
-        {
-            return true;
-        }
-
-        public void MakeCurrent()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Vector2i PointToClient(Vector2i point)
+        public Point PointToClient(Point point)
         {
             var res = _control.PointToClient(new PixelPoint(point.X, point.Y));
-            return new Vector2i((int) res.X, (int) res.Y);
+            return new Point((int) res.X, (int) res.Y);
         }
 
-        public Vector2i PointToScreen(Vector2i point)
+        public Point PointToScreen(Point point)
         {
             var res = _control.PointToScreen(new global::Avalonia.Point(point.X, point.Y));
-            return new Vector2i(res.X, res.Y);
+            return new Point(res.X, res.Y);
         }
-
-        public bool TryGetCurrentMonitorScale(out float horizontalScale, out float verticalScale)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryGetCurrentMonitorDpi(out float horizontalDpi, out float verticalDpi)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryGetCurrentMonitorDpiRaw(out float horizontalDpi, out float verticalDpi)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsKeyDown(Key key) => KeyboardState.IsKeyDown(key);
-
-        public bool IsKeyUp(Key key) => KeyboardState.IsKeyUp(key);
-
-        public bool IsKeyPressed(Key key) => KeyboardState.IsKeyDown(key) && !LastKeyboardState.IsKeyDown(key);
-
-        public bool IsKeyReleased(Key key) => KeyboardState.IsKeyDown(key) && !LastKeyboardState.IsKeyDown(key);
-
-        /// <inheritdoc />
-        public bool IsMouseButtonDown(MouseButton button) => MouseState.IsButtonDown(button);
-
-        /// <inheritdoc />
-        public bool IsMouseButtonUp(MouseButton button) => MouseState.IsButtonUp(button);
-
-        /// <inheritdoc />
-        public bool IsMouseButtonPressed(MouseButton button) => MouseState.IsButtonDown(button) && !LastMouseState.IsButtonDown(button);
-
-        /// <inheritdoc />
-        public bool IsMouseButtonReleased(MouseButton button) => !MouseState.IsButtonDown(button) && LastMouseState.IsButtonDown(button);
-        
         public IGraphicsContext Context => throw new NotImplementedException();
-        
-        public bool IsExiting { get; }
-        public string? ClipboardString { get; set; }
-        public bool Exists => true;
         public WindowIcon? Icon { get; set; }
-        public bool IsEventDriven { get; set; }
-        public Monitor CurrentMonitor { get; set; }
-        public ContextAPI API { get; }
-        public ContextProfile Profile { get; }
-        public ContextFlags Flags { get; }
-        public Version APIVersion => throw new NotImplementedException();
 
         public string Title
         {
@@ -254,77 +193,32 @@ namespace engenious.Avalonia
         public WindowState WindowState { get; set; }
         public WindowBorder WindowBorder { get; set; }
         public Box2i Bounds { get; set; }
-        public Vector2i Location { get; set; }
-        public Vector2i Size { get; set; }
-        public Box2i ClientRectangle { get; set; }
-        public Vector2i ClientSize => new Vector2i((int)_control.Bounds.Width, (int)_control.Bounds.Height);
-        public bool IsFullscreen
-        {
-            get => false;
-            set => throw new NotSupportedException();
-            
-        }
-
-        public MouseCursor Cursor
-        {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
-        }
+        public Point Location { get; set; }
+        public Point Size { get; set; }
+        public Rectangle ClientRectangle { get; set; }
+        public Point ClientSize => new Point((int)_control.Bounds.Width, (int)_control.Bounds.Height);
         public bool CursorVisible { get; set; }
         public bool CursorGrabbed { get; set; }
-        public JoystickState[] JoystickStates => Array.Empty<JoystickState>();
-        public JoystickState[] LastJoystickStates => Array.Empty<JoystickState>();
+        public IReadOnlyList<JoystickState?> JoystickStates => Array.Empty<JoystickState>();
+        public IReadOnlyList<JoystickState?> LastJoystickStates => Array.Empty<JoystickState>();
 
-        public KeyboardState KeyboardState { get; private set; }
+        public engenious.Input.KeyboardState KeyboardState { get; private set; }
 
-        public KeyboardState LastKeyboardState{ get; private set; }
-        public OpenTK.Mathematics.Vector2 MousePosition { get; set; }
-        public OpenTK.Mathematics.Vector2 MouseDelta { get; }
+        public engenious.Input.KeyboardState LastKeyboardState{ get; private set; }
+        public Vector2 MousePosition { get; set; }
 
-        public MouseState MouseState{ get; private set; }
+        public engenious.Input.MouseState MouseState{ get; private set; }
 
-        public MouseState LastMouseState { get; private set; }
-
-        public bool IsAnyKeyDown => KeyboardState.IsAnyKeyDown;
-        public bool IsAnyMouseButtonDown => MouseState.IsAnyButtonDown;
-
-
-        public event Action<WindowPositionEventArgs>? Move;
+        public engenious.Input.MouseState LastMouseState { get; private set; }
         public event Action<ResizeEventArgs>? Resize;
 
-        public event Action? Refresh
-        {
-            add => throw new NotSupportedException();
-            remove => throw new NotSupportedException();
-        }
 
+        public event Action? Load;
+        public event Action<FrameEventArgs>? UpdateFrame;
         public event Action<CancelEventArgs>? Closing;
-        public event Action? Closed;
-        public event Action<MinimizedEventArgs>? Minimized;
-        public event Action<JoystickEventArgs>? JoystickConnected
-        {
-            add => throw new NotSupportedException();
-            remove => throw new NotSupportedException();
-        }
         public event Action<FocusedChangedEventArgs>? FocusedChanged;
-        public event Action<KeyboardKeyEventArgs>? KeyDown;
-        public event Action<TextInputEventArgs>? TextInput;
-        public event Action<KeyboardKeyEventArgs>? KeyUp;
-        public event Action<MonitorEventArgs>? MonitorConnected
-        {
-            add => throw new NotSupportedException();
-            remove => throw new NotSupportedException();
-        }
-        public event Action? MouseLeave;
-        public event Action? MouseEnter;
-        public event Action<MouseButtonEventArgs>? MouseDown;
-        public event Action<MouseButtonEventArgs>? MouseUp;
-        public event Action<MouseMoveEventArgs>? MouseMove;
+        public event Action<FrameEventArgs>? RenderFrame;
+        public event Action<TextInputEventArgs>? KeyPress;
         public event Action<MouseWheelEventArgs>? MouseWheel;
-        public event Action<FileDropEventArgs>? FileDrop
-        {
-            add => throw new NotImplementedException();
-            remove => throw new NotImplementedException();
-        } // TODO:
     }
 }
