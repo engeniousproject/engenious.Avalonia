@@ -11,6 +11,14 @@ namespace engenious.Avalonia
         /// <inheritdoc />
         public AvaloniaGame(AvaloniaRenderingSurface control)
         {
+            control.AttachedToVisualTree += (s,e) =>
+            {
+
+            };
+            control.Initialized += (sender, args) =>
+            {
+
+            };
             control.CreateContext += () =>
             {
                 var fieldInfo =
@@ -21,7 +29,7 @@ namespace engenious.Avalonia
                 var context = new AvaloniaContext(val);
 
                 ConstructContext(control, context);
-
+                context.MakeCurrent();
                 InitializeControl();
             };
         }

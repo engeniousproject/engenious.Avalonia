@@ -87,12 +87,27 @@ namespace engenious.Avalonia
         protected override void OnOpenGlRender(GlInterface gl, int fb)
         {
             var elapsed = _stopwatch.ElapsedMilliseconds / 1000.0;
+
             if (elapsed <= 0)
+            {
+                if (!_stopwatch.IsRunning)
+                {
+                    _stopwatch.Start();
+                    Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
+                }
                 return;
+            }
             _stopwatch.Restart();
-            
-            UpdateFrame?.Invoke(new FrameEventArgs(elapsed));
-            RenderFrame?.Invoke(new FrameEventArgs(elapsed));
+            try
+            {
+                UpdateFrame?.Invoke(new FrameEventArgs(elapsed));
+                RenderFrame?.Invoke(new FrameEventArgs(elapsed));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
             
             Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
