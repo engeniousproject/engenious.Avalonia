@@ -7,17 +7,19 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>enable</Nullable>
+        
     </PropertyGroup>
 
     <ItemGroup>
-        
         <PackageReference Include="Avalonia" Version="0.10.0" />
+        
+        <PackageReference Include="LiCo" Version="0.1.7-alpha" />
         
         <PackageReference Include="LitGit" Version="0.2.0.18-alpha" PrivateAssets="all" />
         
         <PackageReference Include="OpenTK" Version="4.5.0" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
-        <PackageReference Include="engenious" Version="0.5.0.38-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
+        <PackageReference Include="engenious" Version="0.5.0.42-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
     </ItemGroup>
 
     <ItemGroup>
