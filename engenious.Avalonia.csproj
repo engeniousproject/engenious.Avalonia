@@ -14,12 +14,12 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.0" />
         
-        <PackageReference Include="LiCo" Version="0.1.11.9-alpha">
+        <PackageReference Include="LiCo" Version="0.1.11.10-alpha">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         
-        <PackageReference Include="LitGit" Version="0.2.0.52-alpha" PrivateAssets="all" />
+        <PackageReference Include="LitGit" Version="0.2.0.55-alpha" PrivateAssets="all" />
         
         <PackageReference Include="OpenTK" Version="4.5.0" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
