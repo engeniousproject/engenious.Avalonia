@@ -76,7 +76,17 @@ namespace engenious.Avalonia
             OpenTK.Graphics.ES30.GL.LoadBindings(tmp);
             OpenTK.Graphics.OpenGL.GL.LoadBindings(tmp);
             OpenTK.Graphics.OpenGL4.GL.LoadBindings(tmp);
-            
+
+            InitializeContext(false);
+        }
+
+        private bool _isInitialized;
+
+        public void InitializeContext(bool reinitialize = true)
+        {
+            if (reinitialize && !_isInitialized)
+                return;
+            _isInitialized = true;
             CreateContext?.Invoke();
             
             Load?.Invoke();
