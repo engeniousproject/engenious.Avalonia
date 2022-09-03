@@ -21,6 +21,7 @@ namespace engenious.Avalonia
     {
         private readonly global::Avalonia.Controls.Window _window;
         private readonly Control _control;
+        private Rect _oldBounds;
         private readonly IDisposable? _boundsSubscription;
 
         private static TopLevel GetTopLevelControl(global::Avalonia.Controls.IControl control)
@@ -119,9 +120,10 @@ namespace engenious.Avalonia
                 //     Move?.Invoke(new WindowPositionEventArgs((int) newBounds.Position.X, (int) newBounds.Position.Y));
                 // }
 
-                if (newBounds.Size != oldBounds.Size)
+                if (newBounds.Size != _oldBounds.Size)
                 {
                     Resize?.Invoke(new ResizeEventArgs((int) newBounds.Size.Width, (int) newBounds.Size.Height));
+                    _oldBounds = newBounds;
                 }
             });
             _window.Closing += (sender, args) =>
