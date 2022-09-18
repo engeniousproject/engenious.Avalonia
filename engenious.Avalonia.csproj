@@ -14,7 +14,7 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.18" />
         
-        <PackageReference Include="LiCo" Version="0.1.11.13-alpha">
+        <PackageReference Include="LiCo" Version="0.2.0.3-alpha">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -23,7 +23,7 @@
         
         <PackageReference Include="OpenTK" Version="4.5.0" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
-        <PackageReference Include="engenious" Version="0.7.0.1-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
+        <PackageReference Include="engenious" Version="0.7.1-alpha" Condition="!Exists('..\engenious\engenious.csproj')" />
     </ItemGroup>
 
     <ItemGroup>
