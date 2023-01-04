@@ -19,7 +19,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         
-        <PackageReference Include="LitGit" Version="0.2.0.56-alpha" PrivateAssets="all" />
+        <PackageReference Include="LitGit" Version="0.2.0.58-alpha" PrivateAssets="all" />
         
         <PackageReference Include="OpenTK" Version="4.5.0" />
         <ProjectReference Include="..\engenious\engenious.csproj" Condition="Exists('..\engenious\engenious.csproj')" />
